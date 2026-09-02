@@ -1,8 +1,12 @@
 from __future__ import annotations
 
-import os
 from dataclasses import dataclass
 from typing import Tuple
+
+DEFAULT_TRANSPORT = "stdio"
+DEFAULT_STT_COMMAND = "whisper.cpp --stdin"
+DEFAULT_LLM_COMMAND = "llama.cpp --prompt-file -"
+DEFAULT_TTS_COMMAND = "piper --output-raw"
 
 
 @dataclass(frozen=True)
@@ -30,22 +34,13 @@ class PipelineBlueprint:
     stages: Tuple[PipelineStage, ...]
 
 
-def _as_bool(raw: str, *, default: bool) -> bool:
-    if raw is None:
-        return default
-    value = raw.strip().lower()
-    return value in {"1", "true", "yes", "on"}
-
-
-def load_config_from_env() -> BotPipelineConfig:
-    offline = _as_bool(os.getenv("PIXELPILOT_OFFLINE"), default=True)
-    transport = os.getenv("PIXELPILOT_TRANSPORT", "stdio").strip() or "stdio"
+def create_default_config() -> BotPipelineConfig:
     services = OfflineServiceConfig(
-        stt_command=os.getenv("PIXELPILOT_STT_CMD", "whisper.cpp --stdin").strip(),
-        llm_command=os.getenv("PIXELPILOT_LLM_CMD", "llama.cpp --prompt-file -").strip(),
-        tts_command=os.getenv("PIXELPILOT_TTS_CMD", "piper --output-raw").strip(),
+        stt_command=DEFAULT_STT_COMMAND,
+        llm_command=DEFAULT_LLM_COMMAND,
+        tts_command=DEFAULT_TTS_COMMAND,
     )
-    return BotPipelineConfig(offline=offline, transport=transport, services=services)
+    return BotPipelineConfig(offline=True, transport=DEFAULT_TRANSPORT, services=services)
 
 
 def build_offline_pipeline(config: BotPipelineConfig) -> PipelineBlueprint:
@@ -67,7 +62,7 @@ def build_offline_pipeline(config: BotPipelineConfig) -> PipelineBlueprint:
 
 
 def run() -> PipelineBlueprint:
-    config = load_config_from_env()
+    config = create_default_config()
     blueprint = build_offline_pipeline(config)
     print("PixelPilot offline pipeline configured:")
     for stage in blueprint.stages:

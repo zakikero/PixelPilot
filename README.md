@@ -7,16 +7,15 @@ This repository now includes a minimal Python scaffold for a fully offline, loca
 
 ### Quick start
 
-1. Copy environment template:
-   - `cp .env.example .env`
-2. Update local service commands in `.env` to match your offline STT/LLM/TTS executables.
-3. Run:
+1. (Optional) Update local service command constants in:
+   - `src/pixelpilot_bot/main.py`
+2. Run:
    - `PYTHONPATH=src python -m pixelpilot_bot`
 
 ### What is included
 
 - `src/pixelpilot_bot/main.py`:
-  - Loads local/offline config from environment
+  - Uses code-defined offline local config (no environment variables required)
   - Validates offline-only mode
   - Builds a pipeline blueprint (`transport -> stt -> llm -> tts -> output`)
 - `tests/test_offline_pipeline.py`:
