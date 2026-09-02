@@ -8,15 +8,17 @@ This repository now includes a minimal Python scaffold for a fully offline, loca
 ### Quick start
 
 1. (Optional) Update local service command constants in:
-   - `src/pixelpilot_bot/main.py`
+   - `src/pixelpilot_bot/bot.py`
 2. Run:
    - `PYTHONPATH=src python -m pixelpilot_bot`
 
 ### What is included
 
-- `src/pixelpilot_bot/main.py`:
+- `src/pixelpilot_bot/bot.py`:
   - Uses code-defined offline local config (no environment variables required)
   - Validates offline-only mode
   - Builds a pipeline blueprint (`transport -> stt -> llm -> tts -> output`)
+- `src/pixelpilot_bot/main.py`:
+  - Compatibility module that re-exports bot scaffold symbols
 - `tests/test_offline_pipeline.py`:
   - Focused tests for config and pipeline blueprint behavior

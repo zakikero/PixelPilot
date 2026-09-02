@@ -1,6 +1,7 @@
 import unittest
 
 from pixelpilot_bot.main import BotPipelineConfig, OfflineServiceConfig, build_offline_pipeline, create_default_config
+from pixelpilot_bot.bot import run
 
 
 class OfflinePipelineTests(unittest.TestCase):
@@ -38,6 +39,10 @@ class OfflinePipelineTests(unittest.TestCase):
         self.assertIn("/opt/stt --offline", details)
         self.assertIn("/opt/llm --local", details)
         self.assertIn("/opt/tts --offline", details)
+
+    def test_bot_run_returns_pipeline(self) -> None:
+        blueprint = run()
+        self.assertEqual(blueprint.stages[0].name, "transport")
 
 
 if __name__ == "__main__":

@@ -1,4 +1,4 @@
-from pixelpilot_bot.main import run
+from pixelpilot_bot.bot import run
 
 
 if __name__ == "__main__":
