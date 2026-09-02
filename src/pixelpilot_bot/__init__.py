@@ -1,0 +1,1 @@
+"""PixelPilot offline bot scaffold."""
