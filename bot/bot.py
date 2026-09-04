@@ -33,14 +33,17 @@ from pipecat.processors.aggregators.llm_response_universal import (
     LLMContextAggregatorPair,
     LLMUserAggregatorParams,
 )
+
 from pipecat.runner.types import RunnerArguments
 from pipecat.runner.utils import create_transport
-from pipecat.services.cartesia.tts import CartesiaTTSService
-from pipecat.services.deepgram.stt import DeepgramSTTService
 from pipecat.services.openai.responses.llm import OpenAIResponsesLLMService
 from pipecat.transports.base_transport import BaseTransport, TransportParams
 from pipecat.transports.daily.transport import DailyParams
 from pipecat.workers.runner import WorkerRunner
+from pipecat.transports.local.audio import LocalAudioTransportParams
+from pipecat.services.whisper.stt import WhisperSTTService
+from pipecat.services.piper.tts import PiperTTSService
+from pipecat.services.ollama.llm import OllamaLLMService
 
 load_dotenv(override=True)
 
@@ -58,23 +61,23 @@ async def run_bot(transport: BaseTransport, runner_args: RunnerArguments) -> Non
     logger.info("Starting bot")
 
     # Speech-to-Text service
-    stt = DeepgramSTTService(api_key=os.getenv("DEEPGRAM_API_KEY"))
+    stt = WhisperSTTService(
+        model_size=os.getenv("WHISPER_MODEL_SIZE", "tiny"),
+        compute_type=os.getenv("WHISPER_COMPUTE_TYPE", "int8"),
+        device=os.getenv("WHISPER_DEVICE", "cpu"),
+        cpu_threads=int(os.getenv("WHISPER_CPU_THREADS", "4")),
+    )
 
     # Text-to-Speech service
-    tts = CartesiaTTSService(
-        api_key=os.getenv("CARTESIA_API_KEY"),
-        settings=CartesiaTTSService.Settings(
-            voice=os.getenv("CARTESIA_VOICE_ID", "86e30c1d-714b-4074-a1f2-1cb6b552fb49"),
-        ),
+    tts = PiperTTSService(
+        model_name=os.getenv("PIPER_MODEL_NAME", "en_US-amy-medium"),
+        voice_id=os.getenv("PIPER_VOICE_ID", "amy"),
     )
 
     # LLM service
-    llm = OpenAIResponsesLLMService(
-        api_key=os.getenv("OPENAI_API_KEY"),
-        settings=OpenAIResponsesLLMService.Settings(
-            model=os.getenv("OPENAI_MODEL", "gpt-4.1"),
-            system_instruction="You are a helpful assistant in a voice conversation. Your responses will be spoken aloud, so avoid emojis, bullet points, or other formatting that can't be spoken. Respond to what the user said in a creative, helpful, and brief way.",
-        ),
+    llm = OllamaLLMService(
+        model=os.getenv("OLLAMA_MODEL", "llama3"),
+        host=os.getenv("OLLAMA_HOST", "http://localhost:11434"),
     )
 
     context = LLMContext()
@@ -137,6 +140,10 @@ async def bot(runner_args: RunnerArguments):
             audio_out_enabled=True,
         ),
         "webrtc": lambda: TransportParams(
+            audio_in_enabled=True,
+            audio_out_enabled=True,
+        ),
+        "local_audio": lambda: LocalAudioTransportParams(
             audio_in_enabled=True,
             audio_out_enabled=True,
         ),
