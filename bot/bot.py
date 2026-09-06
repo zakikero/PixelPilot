@@ -135,14 +135,14 @@ async def bot(runner_args: RunnerArguments):
     """Main bot entry point."""
 
     transport_params = {
-        "daily": lambda: DailyParams(
-            audio_in_enabled=True,
-            audio_out_enabled=True,
-        ),
-        "webrtc": lambda: TransportParams(
-            audio_in_enabled=True,
-            audio_out_enabled=True,
-        ),
+        # "daily": lambda: DailyParams(
+        #     audio_in_enabled=True,
+        #     audio_out_enabled=True,
+        # ),
+        # "webrtc": lambda: TransportParams(
+        #     audio_in_enabled=True,
+        #     audio_out_enabled=True,
+        # ),
         "local_audio": lambda: LocalAudioTransportParams(
             audio_in_enabled=True,
             audio_out_enabled=True,
