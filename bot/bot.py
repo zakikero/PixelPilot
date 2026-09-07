@@ -183,6 +183,7 @@ async def run_bot() -> None:
     )
 
     if wake_strategy is not None:
+
         @wake_strategy.event_handler("on_wake_phrase_detected")
         async def on_wake_phrase_detected(strategy, phrase):
             print(f"Wake phrase detected: {phrase}")

@@ -2644,9 +2644,9 @@ dependencies = [
     { name = "wait-for2", marker = "python_full_version < '3.12'" },
     { name = "websockets" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/84/82/581985f55ee19ebf4bf3eb219626063c1c6b8e541ee96c9aac5f291f23a7/pipecat_ai-1.12.0.tar.gz", hash = "sha256:0a2d74eb94861ad18e7d795be72e99ebe183c46e063b835fd490359c8004e151", size = 12615988, upload-time = "2026-09-26T01:57:53.958Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/81/5b/79484759132680b7de5d5461809724526d8fc976a8feef7da474c9aaec6b/pipecat_ai-1.8.0.tar.gz", hash = "sha256:abbb2aa9ce533bef57bc5635fda6c0abc8dc186cdfe8faacd6b740889100c169", size = 12012503, upload-time = "2026-08-26T23:33:55.961Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/10/fe/566fd73f43e66ce48b9a7e5dfa9cf79c713184978681708ac5c109c233ee/pipecat_ai-1.12.0-py3-none-any.whl", hash = "sha256:4cd3dc071b7b64da7ac700a26a224b773ae6ef8d6694a4566332d2e5e39ed6d9", size = 11871912, upload-time = "2026-09-26T01:57:50.823Z" },
+    { url = "https://files.pythonhosted.org/packages/2c/7b/7eda1cd230407552133c6a285f55a845820859fcf4cf5edb9c9c5c7e6f9a/pipecat_ai-1.8.0-py3-none-any.whl", hash = "sha256:c9820b4ee7180582a0caa13a2dc184433e85905683533eb26b338a275ad6caa0", size = 11508218, upload-time = "2026-08-26T23:33:52.805Z" },
 ]
 
 [package.optional-dependencies]
@@ -2743,7 +2743,7 @@ requires-dist = [
     { name = "ffmpeg", specifier = ">=1.4" },
     { name = "numpy", specifier = ">=2.4.6" },
     { name = "openai-whisper", git = "https://github.com/openai/whisper.git" },
-    { name = "pipecat-ai", extras = ["cartesia", "daily", "deepgram", "kokoro", "local", "mlx-whisper", "ollama", "openai", "piper", "runner", "silero", "webrtc", "whisper"], specifier = ">=1.4.0" },
+    { name = "pipecat-ai", extras = ["cartesia", "daily", "deepgram", "kokoro", "local", "mlx-whisper", "ollama", "openai", "piper", "runner", "silero", "webrtc", "whisper"], specifier = "==1.8.0" },
     { name = "pipecat-ai-whisker", specifier = ">=2.0.1" },
     { name = "pipecatcloud" },
     { name = "pyaudio", specifier = ">=0.2.14" },
