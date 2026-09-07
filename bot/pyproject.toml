@@ -8,8 +8,9 @@ dependencies = [
     "ffmpeg>=1.4",
     "numpy>=2.4.6",
     "openai-whisper",
-    "pipecat-ai[cartesia,daily,deepgram,mlx-whisper,ollama,openai,piper,runner,silero,webrtc,whisper]>=1.4.0",
+    "pipecat-ai[cartesia,daily,deepgram,local,mlx-whisper,ollama,openai,piper,runner,silero,webrtc,whisper]>=1.4.0",
     "pipecatcloud",
+    "pyaudio>=0.2.14",
     "setuptools-rust>=1.13.0",
     "sounddevice>=0.5.6",
 ]

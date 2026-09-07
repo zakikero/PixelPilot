@@ -11,6 +11,13 @@ A conversational AI designed as an integrated arcade assistant transforms the so
 - [Ollama](https://ollama.com/download) installed locally
 - `uv` installed:
 
+For the local audio setup on Ubuntu or Debian:
+
+```bash
+sudo apt update
+sudo apt install -y build-essential python3-dev portaudio19-dev
+```
+
 Linux and macOS:
 
 ```bash
@@ -47,6 +54,25 @@ voice, and the local Ollama `llama3` model. Download the model before starting:
 ```bash
 ollama pull llama3
 ```
+
+#### Optional CUDA GPU support
+
+Whisper runs on the CPU by default. To use an NVIDIA GPU, install a compatible
+NVIDIA driver on the host and the CUDA runtime libraries inside the environment,
+including the cuBLAS library required by `faster-whisper`. The cuBLAS version
+must match the CUDA runtime expected by your installed `ctranslate2` package.
+For example, an error mentioning `libcublas.so.12` requires the CUDA 12 cuBLAS
+runtime; installing a CUDA 13 library will not satisfy it.
+
+After installing the matching libraries, configure `bot/.env`:
+
+```env
+WHISPER_DEVICE=cuda
+WHISPER_COMPUTE_TYPE=float16
+```
+
+If the required CUDA libraries are unavailable, leave these values set to
+`WHISPER_DEVICE=cpu` and `WHISPER_COMPUTE_TYPE=int8`.
 
 ### Run the voice bot
 

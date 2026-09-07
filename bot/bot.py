@@ -20,12 +20,19 @@ Run the bot using::
     uv run bot.py
 """
 
+import asyncio
 import os
+import sys
 
 from dotenv import load_dotenv
 from loguru import logger
 from pipecat.audio.vad.silero import SileroVADAnalyzer
-from pipecat.frames.frames import LLMRunFrame
+from pipecat.frames.frames import (
+    Frame,
+    InterimTranscriptionFrame,
+    LLMRunFrame,
+    TranscriptionFrame,
+)
 from pipecat.pipeline.pipeline import Pipeline
 from pipecat.pipeline.worker import PipelineParams, PipelineWorker
 from pipecat.processors.aggregators.llm_context import LLMContext
@@ -33,19 +40,41 @@ from pipecat.processors.aggregators.llm_response_universal import (
     LLMContextAggregatorPair,
     LLMUserAggregatorParams,
 )
+from pipecat.processors.audio.vad_processor import VADProcessor
+from pipecat.processors.frame_processor import FrameDirection, FrameProcessor
 from pipecat.runner.types import RunnerArguments
 from pipecat.runner.utils import create_transport
-from pipecat.services.ollama.llm import OllamaLLMService
+from pipecat.services.ollama.llm import OLLamaLLMService
 from pipecat.services.piper.tts import PiperTTSService
 from pipecat.services.whisper.stt import WhisperSTTService
 from pipecat.transports.base_transport import BaseTransport
-from pipecat.transports.local.audio import LocalAudioTransportParams
+from pipecat.transports.local.audio import (
+    LocalAudioTransport,
+    LocalAudioTransportParams,
+)
 from pipecat.workers.runner import WorkerRunner
+from pipecat_whisker import WhiskerServer
 
 load_dotenv(override=True)
 
+logger.remove(0)
+logger.add(sys.stderr, level=os.getenv("LOG_LEVEL", "INFO").upper())
 
-async def run_bot(transport: BaseTransport, runner_args: RunnerArguments) -> None:
+
+# custom frame processor to log transcriptions
+class TranscriptionLogger(FrameProcessor):
+    async def process_frame(self, frame: Frame, direction: FrameDirection):
+        await super().process_frame(frame, direction)
+
+        if isinstance(frame, TranscriptionFrame):
+            logger.info(f"Transcription: {frame.text}")
+        elif isinstance(frame, InterimTranscriptionFrame):
+            logger.info(f"Interim transcription: {frame.text}")
+
+        await self.push_frame(frame, direction)
+
+
+async def run_bot() -> None:
     """Run the voice bot for this session.
 
     Args:
@@ -55,44 +84,55 @@ async def run_bot(transport: BaseTransport, runner_args: RunnerArguments) -> Non
             (e.g. dial-out settings, SIP call details) and ``session_id``; the
             standard web/telephony pipelines don't need it.
     """
+
     logger.info("Starting bot")
+
+    transport = LocalAudioTransport(
+        LocalAudioTransportParams(audio_in_enabled=True, input_device_index=0)
+    )
+    vad_processor = VADProcessor(vad_analyzer=SileroVADAnalyzer())
 
     # Speech-to-Text service
     stt = WhisperSTTService(
-        model_size=os.getenv("WHISPER_MODEL_SIZE", "tiny"),
-        compute_type=os.getenv("WHISPER_COMPUTE_TYPE", "int8"),
-        device=os.getenv("WHISPER_DEVICE", "cpu"),
-        cpu_threads=int(os.getenv("WHISPER_CPU_THREADS", "4")),
+        settings=WhisperSTTService.Settings(
+            model=os.getenv("WHISPER_MODEL", "base"),
+        ),
+        device=os.getenv("WHISPER_DEVICE", "cuda"),
+        compute_type=os.getenv("WHISPER_COMPUTE_TYPE", "float16"),
     )
 
-    # Text-to-Speech service
-    tts = PiperTTSService(
-        model_name=os.getenv("PIPER_MODEL_NAME", "en_US-amy-medium"),
-        voice_id=os.getenv("PIPER_VOICE_ID", "amy"),
-    )
+    tl = TranscriptionLogger()
 
     # LLM service
-    llm = OllamaLLMService(
-        model=os.getenv("OLLAMA_MODEL", "llama3"),
-        host=os.getenv("OLLAMA_HOST", "http://localhost:11434"),
-    )
+    # llm = OLLamaLLMService(
+    #     model=os.getenv("OLLAMA_MODEL", "llama3"),
+    #     host=os.getenv("OLLAMA_HOST", "http://localhost:11434"),
+    # )
 
-    context = LLMContext()
-    user_aggregator, assistant_aggregator = LLMContextAggregatorPair(
-        context,
-        user_params=LLMUserAggregatorParams(vad_analyzer=SileroVADAnalyzer()),
-    )
+    # Text-to-Speech service
+    # tts = PiperTTSService(
+    #     model_name=os.getenv("PIPER_MODEL_NAME", "en_US-amy-medium"),
+    #     voice_id=os.getenv("PIPER_VOICE_ID", "amy"),
+    # )
+
+    # context = LLMContext()
+    # user_aggregator, assistant_aggregator = LLMContextAggregatorPair(
+    #     context,
+    #     user_params=LLMUserAggregatorParams(vad_analyzer=SileroVADAnalyzer()),
+    # )
 
     # Pipeline - assembled from reusable components
     pipeline = Pipeline(
         [
             transport.input(),
+            vad_processor,
             stt,
-            user_aggregator,
-            llm,
-            tts,
+            tl,
+            # user_aggregator,
+            # llm,
+            # tts,
             transport.output(),
-            assistant_aggregator,
+            # assistant_aggregator,
         ]
     )
 
@@ -102,48 +142,36 @@ async def run_bot(transport: BaseTransport, runner_args: RunnerArguments) -> Non
             enable_metrics=True,
             enable_usage_metrics=True,
         ),
-        observers=[],
     )
 
-    @worker.rtvi.event_handler("on_client_ready")
-    async def on_client_ready(rtvi):
-        # Kick off the conversation
-        context.add_message(
-            {"role": "developer", "content": "Start by concisely introducing yourself."}
-        )
-        await worker.queue_frames([LLMRunFrame()])
+    @worker.event_handler("on_pipeline_started")
+    async def on_pipeline_started(worker, frame):
+        logger.info("Pipeline is running and ready!")
 
-    @transport.event_handler("on_client_connected")
-    async def on_client_connected(transport, client):
-        logger.info("Client connected")
+    @worker.event_handler("on_pipeline_finished")
+    async def on_pipeline_finished(worker, frame):
+        logger.info("Pipeline has stopped")
 
-    @transport.event_handler("on_client_disconnected")
-    async def on_client_disconnected(transport, client):
-        logger.info("Client disconnected")
-        await worker.cancel()
+    @worker.event_handler("on_pipeline_error")
+    async def on_pipeline_error(worker, frame):
+        logger.error(f"Pipeline error occurred: {frame}")
+
+    @worker.event_handler("on_idle_timeout")
+    async def on_idle_timeout(worker):
+        logger.info("No activity detected — pipeline is idle")
 
     runner = WorkerRunner(handle_sigint=False)
 
-    await runner.add_workers(worker)
+    whisker = WhiskerServer()
+    worker.add_observer(whisker.create_observer(worker))
+    await runner.add_workers(whisker, worker)
     await runner.run()
 
 
-async def bot(runner_args: RunnerArguments):
+async def bot():
     """Main bot entry point."""
-
-    transport_params = {
-        "local_audio": lambda: LocalAudioTransportParams(
-            audio_in_enabled=True,
-            audio_out_enabled=True,
-        ),
-    }
-
-    transport = await create_transport(runner_args, transport_params)
-
-    await run_bot(transport, runner_args)
+    await run_bot()
 
 
 if __name__ == "__main__":
-    from pipecat.runner.run import main
-
-    main()
+    asyncio.run(bot())
