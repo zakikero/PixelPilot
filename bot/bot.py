@@ -57,7 +57,7 @@ from pipecat.runner.utils import create_transport
 from pipecat.services.kokoro.tts import KokoroTTSService
 from pipecat.services.ollama.llm import OLLamaLLMService
 from pipecat.services.piper.tts import PiperTTSService
-from pipecat.services.whisper.stt import WhisperSTTService
+from pipecat.services.whisper.stt import Model, WhisperSTTService
 from pipecat.transports.base_transport import BaseTransport
 from pipecat.transports.local.audio import (
     LocalAudioTransport,
@@ -101,7 +101,7 @@ async def run_bot() -> None:
 
     stt = WhisperSTTService(
         settings=WhisperSTTService.Settings(
-            model=CONFIG["whisper"]["model"],
+            model=Model.LARGE_V3_TURBO,
             language=None,
         ),
         device=CONFIG["whisper"]["device"],
