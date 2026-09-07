@@ -1,0 +1,32 @@
+[project]
+name = "pipecat-quickstart"
+version = "0.1.0"
+description = "Voice AI bot built with Pipecat"
+requires-python = ">=3.11"
+dependencies = [
+    "faster-whisper>=1.2.1",
+    "ffmpeg>=1.4",
+    "numpy>=2.4.6",
+    "openai-whisper",
+    "pipecat-ai-whisker>=2.0.1",
+    "pipecat-ai[cartesia,daily,deepgram,kokoro,local,mlx-whisper,ollama,openai,piper,runner,silero,webrtc,whisper]>=1.4.0",
+    "pipecatcloud",
+    "pyaudio>=0.2.14",
+    "pyyaml>=6.0.2",
+    "setuptools-rust>=1.13.0",
+    "sounddevice>=0.5.6",
+]
+
+[dependency-groups]
+dev = [
+    "pyright>=1.1.404,<2",
+    "ruff>=0.12.11,<1",
+]
+
+[tool.ruff]
+line-length = 100
+[tool.ruff.lint]
+select = ["I", "UP"]
+
+[tool.uv.sources]
+openai-whisper = { git = "https://github.com/openai/whisper.git" }

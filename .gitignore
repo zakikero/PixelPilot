@@ -25,6 +25,7 @@ share/python-wheels/
 .installed.cfg
 *.egg
 MANIFEST
+*.deb
 
 # PyInstaller
 #   Usually these files are written by a python script from a template
@@ -99,6 +100,11 @@ ipython_config.py
 #   This is especially recommended for binary packages to ensure reproducibility, and is more
 #   commonly ignored for libraries.
 # uv.lock
+
+# Local environment variables and secrets
+.env
+.env.*
+!.env.example
 
 # poetry
 #   Similar to Pipfile.lock, it is generally recommended to include poetry.lock in version control.
@@ -200,8 +206,6 @@ cython_debug/
 #   and can be added to the global gitignore or merged into this file. However, if you prefer, 
 #   you could uncomment the following to ignore the entire vscode folder
 # .vscode/
-# Temporary file for partial code execution
-tempCodeRunnerFile.py
 
 # Ruff stuff:
 .ruff_cache/
@@ -216,3 +220,9 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Pipecat eval artifacts
+*.eval.log
+*.debug.log
+
+# Node.js (client/)
