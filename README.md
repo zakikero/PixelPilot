@@ -2,28 +2,92 @@
 
 A conversational AI designed as an integrated arcade assistant transforms the solitary nostalgia of retro gaming into a dynamic, two-player experience. Positioned either within the physical cabinet, the AI functions as a real-time copilot, strategy advisor, and interactive character tailored to the coin-op atmosphere.
 
+## Development Setup
+
+### Prerequisites
+
+- Python 3.11 or newer
+- A microphone and audio output device
+- [Ollama](https://ollama.com/download) installed locally
+- `uv` installed:
+
+Linux and macOS:
+
 ```bash
-install uv:
-windows:
-powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
-linux
 curl -LsSf https://astral.sh/uv/install.sh | sh
+```
 
-uv python install
+Windows PowerShell:
 
-restart and check version
+```powershell
+powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
+```
+
+Restart the terminal after installation and verify the tools:
+
+```bash
 uv --version
+python --version
+ollama --version
+```
 
+### Install the project
 
+From the repository root:
+
+```bash
+cd bot
+uv sync
+cp .env.example .env
+```
+
+The default environment uses Whisper on the CPU, Piper's `en_US-amy-medium`
+voice, and the local Ollama `llama3` model. Download the model before starting:
+
+```bash
+ollama pull llama3
+```
+
+### Run the voice bot
+
+Make sure Ollama is running, then start the local audio transport:
+
+```bash
+ollama serve
+```
+
+In a second terminal:
+
+```bash
+cd bot
+uv run bot.py
+```
+
+Speak into the configured microphone. The bot plays its responses through the
+default audio output device.
+
+### Pipecat Context Hub (optional)
+
+Context Hub gives coding agents searchable Pipecat documentation and examples.
+It is a developer tool and is not installed by `uv sync`:
+
+```bash
 uv tool install "pipecat-ai[cli]"
+pipecat context-hub install
+pipecat context-hub refresh --framework-version latest
+```
 
-check pipecat version
+Restart VS Code after installation so the MCP server is loaded.
 
-pipecat --version
+## Project Structure
 
-
-
-
-
-
+```text
+PixelPilot/
+├── bot/                 # Local Pipecat voice bot
+│   ├── bot.py           # Main bot implementation
+│   ├── pyproject.toml   # Python dependencies and tooling
+│   ├── .env.example     # Local configuration template
+│   └── whisperLiveTest.py # Standalone Whisper microphone test
+├── main.py              # Root placeholder entry point
+└── README.md
 ```

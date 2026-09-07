@@ -1,24 +1,24 @@
-# pipecat-quickstart
+# PixelPilot voice bot
 
-A Pipecat AI voice agent built with a cascade pipeline (STT → LLM → TTS).
+A local Pipecat voice agent built with a cascade pipeline (STT -> LLM -> TTS).
+It uses Whisper for speech recognition, Ollama for the language model, and
+Piper for speech synthesis. No cloud API keys are required.
 
 ## Configuration
 
-- **Bot Type**: Web
-- **Transport(s)**: SmallWebRTC, Daily (WebRTC)
+- **Bot Type**: Local audio
+- **Transport**: Local microphone and speakers
 - **Pipeline**: Cascade
-  - **STT**: Deepgram
-  - **LLM**: OpenAI Responses
-  - **TTS**: Cartesia
+   - **STT**: Whisper
+   - **LLM**: Ollama
+   - **TTS**: Piper
 
 ## Setup
 
-### Server
-
-1. **Navigate to server directory**:
+1. **Navigate to the bot directory**:
 
    ```bash
-   cd server
+   cd bot
    ```
 
 2. **Install dependencies**:
@@ -31,7 +31,13 @@ A Pipecat AI voice agent built with a cascade pipeline (STT → LLM → TTS).
 
    ```bash
    cp .env.example .env
-   # Edit .env and add your API keys
+   ```
+
+   The default values use a tiny Whisper model, the Amy Piper voice, and the
+   `llama3` Ollama model. Start Ollama separately and pull the model:
+
+   ```bash
+   ollama pull llama3
    ```
 
 4. **Run the bot**:
@@ -40,30 +46,23 @@ A Pipecat AI voice agent built with a cascade pipeline (STT → LLM → TTS).
    uv run bot.py
    ```
 
-   The runner serves every transport; the caller selects which one (a web/mobile
-   client picks its transport when it connects; a telephony provider connects to
-   `/ws`).
+   The bot listens to the local microphone and plays responses through the
+   default audio output device.
 
 ## Project Structure
 
 ```
-pipecat-quickstart/
-├── server/              # Python bot server
+PixelPilot/
+├── bot/                 # Local voice bot
 │   ├── bot.py           # Main bot implementation
 │   ├── pyproject.toml   # Python dependencies
-│   ├── .env.example     # Environment variables template
-│   ├── .env             # Your API keys (git-ignored)
-│   ├── Dockerfile       # Container image for Pipecat Cloud
-│   └── pcc-deploy.toml  # Pipecat Cloud deployment config
+│   ├── .env.example     # Local configuration template
+│   ├── .env             # Local configuration (git-ignored)
+│   └── whisperLiveTest.py # Standalone Whisper microphone test
+├── main.py              # Root placeholder entry point
 ├── .gitignore           # Git ignore patterns
-└── README.md            # This file
+└── README.md            # Project overview
 ```
-
-## Deploying to Pipecat Cloud
-
-This project is configured for deployment to Pipecat Cloud. You can learn how to deploy to Pipecat Cloud in the [Pipecat Quickstart Guide](https://docs.pipecat.ai/getting-started/quickstart#step-2-deploy-to-production).
-
-Refer to the [Pipecat Cloud Documentation](https://docs.pipecat.ai/deployment/pipecat-cloud/introduction) to learn more about configuring, deploying, and managing your agents in Pipecat Cloud.
 
 ## Building with an AI coding agent
 
