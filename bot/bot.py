@@ -99,7 +99,6 @@ async def run_bot() -> None:
     )
     vad_processor = VADProcessor(vad_analyzer=SileroVADAnalyzer())
 
-    # Speech-to-Text service
     stt = WhisperSTTService(
         settings=WhisperSTTService.Settings(
             model=CONFIG["whisper"]["model"],
@@ -109,7 +108,6 @@ async def run_bot() -> None:
         compute_type=CONFIG["whisper"]["compute_type"],
     )
 
-    # LLM service
     llm = OLLamaLLMService(
         base_url=CONFIG["ollama"]["host"],
         settings=OLLamaLLMService.Settings(
@@ -139,7 +137,6 @@ async def run_bot() -> None:
         user_params=LLMUserAggregatorParams(vad_analyzer=SileroVADAnalyzer()),
     )
 
-    # Pipeline - assembled from reusable components
     pipeline = Pipeline(
         [
             transport.input(),
