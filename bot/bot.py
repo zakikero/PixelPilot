@@ -102,7 +102,7 @@ async def run_bot() -> None:
     stt = WhisperSTTService(
         settings=WhisperSTTService.Settings(
             model=CONFIG["whisper"]["model"],
-            language=CONFIG["whisper"]["language"],
+            language=None,
         ),
         device=CONFIG["whisper"]["device"],
         compute_type=CONFIG["whisper"]["compute_type"],
