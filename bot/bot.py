@@ -121,11 +121,11 @@ async def run_bot() -> None:
     #     voice_id=CONFIG["piper"]["voice_id"],
     # )
 
-    # context = LLMContext()
-    # user_aggregator, assistant_aggregator = LLMContextAggregatorPair(
-    #     context,
-    #     user_params=LLMUserAggregatorParams(vad_analyzer=SileroVADAnalyzer()),
-    # )
+    context = LLMContext()
+    user_aggregator, assistant_aggregator = LLMContextAggregatorPair(
+        context,
+        user_params=LLMUserAggregatorParams(vad_analyzer=SileroVADAnalyzer()),
+    )
 
     # Pipeline - assembled from reusable components
     pipeline = Pipeline(
@@ -133,23 +133,23 @@ async def run_bot() -> None:
             transport.input(),
             vad_processor,
             stt,
-            # user_aggregator,
-            # llm,
+            user_aggregator,
+            llm,
             # tts,
             transport.output(),
-            # assistant_aggregator,
+            assistant_aggregator,
         ]
     )
 
     worker = PipelineWorker(
         pipeline,
         params=PipelineParams(
-            enable_metrics=True,
-            enable_usage_metrics=True,
+            # enable_metrics=True,
+            # enable_usage_metrics=True,
         ),
         observers=[
             # TranscriptionLogObserver(),
-            # LLMLogObserver(),
+            LLMLogObserver(),
         ],
         processor_unusable_policy=ProcessorUnusablePolicy.END,
     )
