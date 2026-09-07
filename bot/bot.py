@@ -23,7 +23,9 @@ Run the bot using::
 import asyncio
 import os
 import sys
+from pathlib import Path
 
+import yaml
 from dotenv import load_dotenv
 from loguru import logger
 from pipecat.audio.vad.silero import SileroVADAnalyzer
@@ -33,8 +35,16 @@ from pipecat.frames.frames import (
     LLMRunFrame,
     TranscriptionFrame,
 )
+from pipecat.observers.loggers.llm_log_observer import LLMLogObserver
+from pipecat.observers.loggers.transcription_log_observer import (
+    TranscriptionLogObserver,
+)
 from pipecat.pipeline.pipeline import Pipeline
-from pipecat.pipeline.worker import PipelineParams, PipelineWorker
+from pipecat.pipeline.worker import (
+    PipelineParams,
+    PipelineWorker,
+    ProcessorUnusablePolicy,
+)
 from pipecat.processors.aggregators.llm_context import LLMContext
 from pipecat.processors.aggregators.llm_response_universal import (
     LLMContextAggregatorPair,
@@ -57,21 +67,12 @@ from pipecat_whisker import WhiskerServer
 
 load_dotenv(override=True)
 
+CONFIG_PATH = Path(__file__).with_name("config.yaml")
+with CONFIG_PATH.open() as config_file:
+    CONFIG = yaml.safe_load(config_file)
+
 logger.remove(0)
-logger.add(sys.stderr, level=os.getenv("LOG_LEVEL", "INFO").upper())
-
-
-# custom frame processor to log transcriptions
-class TranscriptionLogger(FrameProcessor):
-    async def process_frame(self, frame: Frame, direction: FrameDirection):
-        await super().process_frame(frame, direction)
-
-        if isinstance(frame, TranscriptionFrame):
-            logger.info(f"Transcription: {frame.text}")
-        elif isinstance(frame, InterimTranscriptionFrame):
-            logger.info(f"Interim transcription: {frame.text}")
-
-        await self.push_frame(frame, direction)
+logger.add(sys.stderr, level=os.getenv("LOG_LEVEL", CONFIG["logging"]["level"]).upper())
 
 
 async def run_bot() -> None:
@@ -88,31 +89,36 @@ async def run_bot() -> None:
     logger.info("Starting bot")
 
     transport = LocalAudioTransport(
-        LocalAudioTransportParams(audio_in_enabled=True, input_device_index=0)
+        LocalAudioTransportParams(
+            audio_in_enabled=True,
+            input_device_index=CONFIG["audio"]["input_device_index"],
+        )
     )
     vad_processor = VADProcessor(vad_analyzer=SileroVADAnalyzer())
 
     # Speech-to-Text service
     stt = WhisperSTTService(
         settings=WhisperSTTService.Settings(
-            model=os.getenv("WHISPER_MODEL", "base"),
+            model=CONFIG["whisper"]["model"],
         ),
-        device=os.getenv("WHISPER_DEVICE", "cuda"),
-        compute_type=os.getenv("WHISPER_COMPUTE_TYPE", "float16"),
+        device=CONFIG["whisper"]["device"],
+        compute_type=CONFIG["whisper"]["compute_type"],
     )
 
-    tl = TranscriptionLogger()
-
     # LLM service
-    # llm = OLLamaLLMService(
-    #     model=os.getenv("OLLAMA_MODEL", "llama3"),
-    #     host=os.getenv("OLLAMA_HOST", "http://localhost:11434"),
-    # )
+    llm = OLLamaLLMService(
+        base_url=CONFIG["ollama"]["host"],
+        settings=OLLamaLLMService.Settings(
+            model=CONFIG["ollama"]["model"],
+            system_instruction=CONFIG["ollama"]["system_instruction"],
+            temperature=CONFIG["ollama"]["temperature"],
+        ),
+    )
 
     # Text-to-Speech service
     # tts = PiperTTSService(
-    #     model_name=os.getenv("PIPER_MODEL_NAME", "en_US-amy-medium"),
-    #     voice_id=os.getenv("PIPER_VOICE_ID", "amy"),
+    #     model_name=CONFIG["piper"]["model_name"],
+    #     voice_id=CONFIG["piper"]["voice_id"],
     # )
 
     # context = LLMContext()
@@ -127,7 +133,6 @@ async def run_bot() -> None:
             transport.input(),
             vad_processor,
             stt,
-            tl,
             # user_aggregator,
             # llm,
             # tts,
@@ -142,6 +147,11 @@ async def run_bot() -> None:
             enable_metrics=True,
             enable_usage_metrics=True,
         ),
+        observers=[
+            # TranscriptionLogObserver(),
+            # LLMLogObserver(),
+        ],
+        processor_unusable_policy=ProcessorUnusablePolicy.END,
     )
 
     @worker.event_handler("on_pipeline_started")

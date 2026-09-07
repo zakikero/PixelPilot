@@ -33,6 +33,10 @@ Piper for speech synthesis. No cloud API keys are required.
    cp .env.example .env
    ```
 
+   Edit `config.yaml` for non-secret settings such as the Whisper model,
+   CPU/CUDA mode, Ollama model, and audio input device. Keep `.env` for
+   optional secrets or environment-specific overrides.
+
    The default values use a tiny Whisper model, the Amy Piper voice, and the
    `llama3` Ollama model. Start Ollama separately and pull the model:
 

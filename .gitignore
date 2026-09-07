@@ -101,6 +101,11 @@ ipython_config.py
 #   commonly ignored for libraries.
 # uv.lock
 
+# Local environment variables and secrets
+.env
+.env.*
+!.env.example
+
 # poetry
 #   Similar to Pipfile.lock, it is generally recommended to include poetry.lock in version control.
 #   This is especially recommended for binary packages to ensure reproducibility, and is more

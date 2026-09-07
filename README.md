@@ -48,6 +48,11 @@ uv sync
 cp .env.example .env
 ```
 
+Non-secret settings such as model names, audio device selection, and CUDA/CPU
+mode are stored in `bot/config.yaml`. Edit that file when changing the local
+setup. The `.env` file is reserved for optional environment-specific overrides
+and secrets.
+
 The default environment uses Whisper on the CPU, Piper's `en_US-amy-medium`
 voice, and the local Ollama `llama3` model. Download the model before starting:
 
@@ -64,15 +69,16 @@ must match the CUDA runtime expected by your installed `ctranslate2` package.
 For example, an error mentioning `libcublas.so.12` requires the CUDA 12 cuBLAS
 runtime; installing a CUDA 13 library will not satisfy it.
 
-After installing the matching libraries, configure `bot/.env`:
+After installing the matching libraries, configure `bot/config.yaml`:
 
-```env
-WHISPER_DEVICE=cuda
-WHISPER_COMPUTE_TYPE=float16
+```yaml
+whisper:
+	device: cuda
+	compute_type: float16
 ```
 
 If the required CUDA libraries are unavailable, leave these values set to
-`WHISPER_DEVICE=cpu` and `WHISPER_COMPUTE_TYPE=int8`.
+`device: cpu` and `compute_type: int8` in `config.yaml`.
 
 ### Run the voice bot
 

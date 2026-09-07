@@ -1,0 +1,23 @@
+# Non-secret application settings for the local voice bot.
+
+audio:
+  input_device_index: 0
+
+whisper:
+  model: tiny
+  device: cpu
+  compute_type: int8
+
+ollama:
+  host: http://localhost:11434
+  model: llama3.1:8b
+  system_instruction: >-
+    You are a helpful assistant for answering questions concerning arcade games.
+  temperature: 0.7
+
+piper:
+  model_name: en_US-amy-medium
+  voice_id: amy
+
+logging:
+  level: INFO
