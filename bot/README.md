@@ -27,7 +27,7 @@ Piper for speech synthesis. No cloud API keys are required.
    uv sync
    ```
 
-3. **Configure environment variables**:
+3. **Configure the bot**:
 
    ```bash
    cp .env.example .env
@@ -37,12 +37,27 @@ Piper for speech synthesis. No cloud API keys are required.
    CPU/CUDA mode, Ollama model, and audio input device. Keep `.env` for
    optional secrets or environment-specific overrides.
 
-   The default values use a tiny Whisper model, the Amy Piper voice, and the
-   `llama3` Ollama model. Start Ollama separately and pull the model:
+   Install Ollama on the host. On Linux or WSL:
 
    ```bash
-   ollama pull llama3
+   curl -fsSL https://ollama.com/install.sh | sh
    ```
+
+   Start Ollama in a separate terminal and pull the configured model:
+
+   ```bash
+   ollama serve
+   ollama pull llama3.1:8b
+   ```
+
+   Verify the model server:
+
+   ```bash
+   curl http://localhost:11434/api/tags
+   ```
+
+   The Ollama connection is configured in `config.yaml` under `ollama.host`
+   and `ollama.model`. No command-line transport or model argument is needed.
 
 4. **Run the bot**:
 
@@ -50,8 +65,18 @@ Piper for speech synthesis. No cloud API keys are required.
    uv run bot.py
    ```
 
-   The bot listens to the local microphone and plays responses through the
-   default audio output device.
+   The bot listens to the local microphone and logs transcriptions and Ollama
+   responses. Piper is currently disabled in `bot.py`, so enable it before
+   expecting spoken responses through the default audio output device.
+
+   To inspect the audio devices visible to WSL or Linux:
+
+   ```bash
+   uv run audio_devices.py
+   ```
+
+   Use the printed indexes for `input_device_index` and `output_device_index`
+   in `config.yaml`.
 
 ## Project Structure
 

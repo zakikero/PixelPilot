@@ -54,6 +54,7 @@ from pipecat.processors.audio.vad_processor import VADProcessor
 from pipecat.processors.frame_processor import FrameDirection, FrameProcessor
 from pipecat.runner.types import RunnerArguments
 from pipecat.runner.utils import create_transport
+from pipecat.services.kokoro.tts import KokoroTTSService
 from pipecat.services.ollama.llm import OLLamaLLMService
 from pipecat.services.piper.tts import PiperTTSService
 from pipecat.services.whisper.stt import WhisperSTTService
@@ -91,7 +92,9 @@ async def run_bot() -> None:
     transport = LocalAudioTransport(
         LocalAudioTransportParams(
             audio_in_enabled=True,
+            audio_out_enabled=True,
             input_device_index=CONFIG["audio"]["input_device_index"],
+            output_device_index=CONFIG["audio"]["output_device_index"],
         )
     )
     vad_processor = VADProcessor(vad_analyzer=SileroVADAnalyzer())
@@ -100,6 +103,7 @@ async def run_bot() -> None:
     stt = WhisperSTTService(
         settings=WhisperSTTService.Settings(
             model=CONFIG["whisper"]["model"],
+            language=CONFIG["whisper"]["language"],
         ),
         device=CONFIG["whisper"]["device"],
         compute_type=CONFIG["whisper"]["compute_type"],
@@ -121,6 +125,14 @@ async def run_bot() -> None:
     #     voice_id=CONFIG["piper"]["voice_id"],
     # )
 
+    tts = KokoroTTSService(
+        speed=CONFIG["kokoro"]["speed"],
+        settings=KokoroTTSService.Settings(
+            voice=CONFIG["kokoro"]["voice"],
+            language=CONFIG["kokoro"]["language"],
+        ),
+    )
+
     context = LLMContext()
     user_aggregator, assistant_aggregator = LLMContextAggregatorPair(
         context,
@@ -135,7 +147,7 @@ async def run_bot() -> None:
             stt,
             user_aggregator,
             llm,
-            # tts,
+            tts,
             transport.output(),
             assistant_aggregator,
         ]
@@ -148,7 +160,7 @@ async def run_bot() -> None:
             # enable_usage_metrics=True,
         ),
         observers=[
-            # TranscriptionLogObserver(),
+            TranscriptionLogObserver(),
             LLMLogObserver(),
         ],
         processor_unusable_policy=ProcessorUnusablePolicy.END,
@@ -172,9 +184,10 @@ async def run_bot() -> None:
 
     runner = WorkerRunner(handle_sigint=False)
 
-    whisker = WhiskerServer()
-    worker.add_observer(whisker.create_observer(worker))
-    await runner.add_workers(whisker, worker)
+    # whisker = WhiskerServer()
+    # worker.add_observer(whisker.create_observer(worker))
+    # await runner.add_workers(whisker, worker)
+    await runner.add_workers(worker)
     await runner.run()
 
 
