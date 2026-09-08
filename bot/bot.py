@@ -29,12 +29,6 @@ import yaml
 from dotenv import load_dotenv
 from loguru import logger
 from pipecat.audio.vad.silero import SileroVADAnalyzer
-from pipecat.frames.frames import (
-    Frame,
-    InterimTranscriptionFrame,
-    LLMRunFrame,
-    TranscriptionFrame,
-)
 from pipecat.observers.loggers.llm_log_observer import LLMLogObserver
 from pipecat.observers.loggers.transcription_log_observer import (
     TranscriptionLogObserver,
@@ -51,20 +45,14 @@ from pipecat.processors.aggregators.llm_response_universal import (
     LLMUserAggregatorParams,
 )
 from pipecat.processors.audio.vad_processor import VADProcessor
-from pipecat.processors.frame_processor import FrameDirection, FrameProcessor
-from pipecat.runner.types import RunnerArguments
-from pipecat.runner.utils import create_transport
 from pipecat.services.kokoro.tts import KokoroTTSService
 from pipecat.services.ollama.llm import OLLamaLLMService
-from pipecat.services.piper.tts import PiperTTSService
-from pipecat.services.whisper.stt import WhisperSTTService
-from pipecat.transports.base_transport import BaseTransport
+from pipecat.services.whisper.stt import Model, WhisperSTTService
 from pipecat.transports.local.audio import (
     LocalAudioTransport,
     LocalAudioTransportParams,
 )
 from pipecat.workers.runner import WorkerRunner
-from pipecat_whisker import WhiskerServer
 
 load_dotenv(override=True)
 
@@ -101,8 +89,8 @@ async def run_bot() -> None:
 
     stt = WhisperSTTService(
         settings=WhisperSTTService.Settings(
-            model=CONFIG["whisper"]["model"],
-            language=CONFIG["whisper"]["language"],
+            model=Model.LARGE_V3_TURBO,
+            language=None,
         ),
         device=CONFIG["whisper"]["device"],
         compute_type=CONFIG["whisper"]["compute_type"],
@@ -117,7 +105,6 @@ async def run_bot() -> None:
         ),
     )
 
-    # Text-to-Speech service
     # tts = PiperTTSService(
     #     model_name=CONFIG["piper"]["model_name"],
     #     voice_id=CONFIG["piper"]["voice_id"],

@@ -2640,7 +2640,7 @@ wheels = [
 
 [[package]]
 name = "pipecat-ai"
-version = "1.8.1"
+version = "1.8.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "aiofiles" },
@@ -2667,9 +2667,9 @@ dependencies = [
     { name = "wait-for2", marker = "python_full_version < '3.12'" },
     { name = "websockets" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/4d/3b/a81a3022b14ea9170cb9ff887f4747864e2e8f358822d3a579c194571fb4/pipecat_ai-1.8.1.tar.gz", hash = "sha256:770061eaf56b265d77a0bec7adf0d1b8e229ff9543940d4f9acd1150f0ca6b15", size = 12015941, upload-time = "2026-08-27T16:19:04.286Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/81/5b/79484759132680b7de5d5461809724526d8fc976a8feef7da474c9aaec6b/pipecat_ai-1.8.0.tar.gz", hash = "sha256:abbb2aa9ce533bef57bc5635fda6c0abc8dc186cdfe8faacd6b740889100c169", size = 12012503, upload-time = "2026-08-26T23:33:55.961Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/ed/f3/831d7945faf23f4b1c1e4289a0340cde00e830899e67c0cbdfa83412f71f/pipecat_ai-1.8.1-py3-none-any.whl", hash = "sha256:c0097e3946cafa431a75c3b730eb9175a0450b5104e7ae5ae58dd5f6d1a0bbad", size = 11508781, upload-time = "2026-08-27T16:19:01.349Z" },
+    { url = "https://files.pythonhosted.org/packages/2c/7b/7eda1cd230407552133c6a285f55a845820859fcf4cf5edb9c9c5c7e6f9a/pipecat_ai-1.8.0-py3-none-any.whl", hash = "sha256:c9820b4ee7180582a0caa13a2dc184433e85905683533eb26b338a275ad6caa0", size = 11508218, upload-time = "2026-08-26T23:33:52.805Z" },
 ]
 
 [package.optional-dependencies]
@@ -2767,7 +2767,7 @@ requires-dist = [
     { name = "ffmpeg", specifier = ">=1.4" },
     { name = "numpy", specifier = ">=2.4.6" },
     { name = "openai-whisper", git = "https://github.com/openai/whisper.git" },
-    { name = "pipecat-ai", extras = ["cartesia", "daily", "deepgram", "kokoro", "local", "mlx-whisper", "ollama", "openai", "piper", "runner", "silero", "webrtc", "whisper"], specifier = ">=1.4.0" },
+    { name = "pipecat-ai", extras = ["cartesia", "daily", "deepgram", "kokoro", "local", "mlx-whisper", "ollama", "openai", "piper", "runner", "silero", "webrtc", "whisper"], specifier = "==1.8.0" },
     { name = "pipecat-ai-whisker", specifier = ">=2.0.1" },
     { name = "pipecatcloud" },
     { name = "pyaudio", specifier = ">=0.2.14" },
