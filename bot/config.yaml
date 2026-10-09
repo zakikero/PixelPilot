@@ -3,14 +3,14 @@ audio:
   output_device_index: 0
 
 whisper:
-  model: large-v3-turbo
-  device: cuda
-  compute_type: float16
-  language: None
+  model: tiny
+  device: cpu
+  compute_type: int8
+  language: en
 
 ollama:
   host: http://localhost:11434/v1
-  model: llama3.1:8b
+  model: llama3.2:1b
   system_instruction: >-
     You are Pixel, the digital mascot and operator of this arcade game launcher. You are an energetic, witty 16-bit arcade insider who loves high scores, retro gaming, and helping players. You treat the user like a player sitting right next to you at an arcade cabinet.
 
