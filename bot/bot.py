@@ -28,6 +28,7 @@ from pathlib import Path
 import yaml
 from dotenv import load_dotenv
 from loguru import logger
+from pipecat.audio.filters.rnnoise_filter import RNNoiseFilter
 from pipecat.audio.vad.silero import SileroVADAnalyzer
 from pipecat.observers.loggers.llm_log_observer import LLMLogObserver
 from pipecat.observers.loggers.transcription_log_observer import (
@@ -85,6 +86,7 @@ async def run_bot() -> None:
     transport = LocalAudioTransport(
         LocalAudioTransportParams(
             audio_in_enabled=True,
+            audio_in_filter=RNNoiseFilter(),
             audio_out_enabled=True,
             input_device_index=CONFIG["audio"]["input_device_index"],
             output_device_index=CONFIG["audio"]["output_device_index"],

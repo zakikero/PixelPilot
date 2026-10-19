@@ -8,6 +8,7 @@ Piper for speech synthesis. No cloud API keys are required.
 
 - **Bot Type**: Local audio
 - **Transport**: Local microphone and speakers
+- **Input filtering**: RNNoise suppresses microphone noise before VAD and Whisper.
 - **Pipeline**: Cascade
    - **STT**: Whisper
    - **LLM**: Ollama

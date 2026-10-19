@@ -1,9 +1,9 @@
 audio:
-  input_device_index: 0
-  output_device_index: 0
+  input_device_index: 5
+  output_device_index: 3
 
 whisper:
-  model: tiny
+  model: base
   device: cpu
   compute_type: int8
   language: en
@@ -47,7 +47,7 @@ piper:
 
 wake:
   enabled: true # Set to false to listen without a wake phrase.
-  phrases: ["hey pixel"]
+  phrases: ["hey Sea wolf", "ok Sea wolf", "wake up Sea wolf"]
   timeout: 5.0
 
 logging:
