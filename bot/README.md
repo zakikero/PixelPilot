@@ -8,8 +8,9 @@ Piper for speech synthesis. No cloud API keys are required.
 
 - **Bot Type**: Local audio
 - **Transport**: Local microphone and speakers
+- **Input filtering**: RNNoise suppresses microphone noise before VAD and Whisper.
 - **Pipeline**: Cascade
-   - **STT**: Whisper
+   - **STT**: Whisper `large-v3-turbo` via Faster Whisper (CPU, INT8)
    - **LLM**: Ollama
    - **TTS**: Piper
 
@@ -37,6 +38,10 @@ Piper for speech synthesis. No cloud API keys are required.
    CPU/CUDA mode, Ollama model, and audio input device. Keep `.env` for
    optional secrets or environment-specific overrides.
 
+   STT uses `deepdml/faster-whisper-large-v3-turbo-ct2`, Pipecat's Faster Whisper
+   Turbo model, with CPU INT8 inference. Model files download automatically on
+   the first run if they are not already cached.
+
    For a complete fresh-machine setup, including Ubuntu packages, CUDA/cuBLAS/
    cuDNN installation, model downloads, and verification commands, follow the
    [root setup guide](../README.md#development-setup).
@@ -51,7 +56,7 @@ Piper for speech synthesis. No cloud API keys are required.
 
    ```bash
    ollama serve
-   ollama pull llama3.1:8b
+   ollama pull llama3.2:3b
    ```
 
    Verify the model server:
