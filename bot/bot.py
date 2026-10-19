@@ -63,6 +63,11 @@ from pipecat.transports.local.audio import (
     LocalAudioTransport,
     LocalAudioTransportParams,
 )
+from pipecat.turns.user_start import WakePhraseUserTurnStartStrategy
+from pipecat.turns.user_turn_strategies import (
+    UserTurnStrategies,
+    default_user_turn_start_strategies,
+)
 from pipecat.workers.runner import WorkerRunner
 from pipecat_whisker import WhiskerServer
 
@@ -131,10 +136,24 @@ async def run_bot() -> None:
         ),
     )
 
+    wake_strategy = None
+    user_turn_start_strategies = default_user_turn_start_strategies()
+    if CONFIG.get("wake", {}).get("enabled", False):
+        wake_strategy = WakePhraseUserTurnStartStrategy(
+            phrases=CONFIG["wake"]["phrases"],
+            timeout=CONFIG["wake"]["timeout"],
+        )
+        user_turn_start_strategies.insert(0, wake_strategy)
+
     context = LLMContext()
     user_aggregator, assistant_aggregator = LLMContextAggregatorPair(
         context,
-        user_params=LLMUserAggregatorParams(vad_analyzer=SileroVADAnalyzer()),
+        user_params=LLMUserAggregatorParams(
+            vad_analyzer=SileroVADAnalyzer(),
+            user_turn_strategies=UserTurnStrategies(
+                start=user_turn_start_strategies,
+            ),
+        ),
     )
 
     pipeline = Pipeline(
@@ -162,6 +181,15 @@ async def run_bot() -> None:
         ],
         processor_unusable_policy=ProcessorUnusablePolicy.END,
     )
+
+    if wake_strategy is not None:
+        @wake_strategy.event_handler("on_wake_phrase_detected")
+        async def on_wake_phrase_detected(strategy, phrase):
+            print(f"Wake phrase detected: {phrase}")
+
+        @wake_strategy.event_handler("on_wake_phrase_timeout")
+        async def on_wake_phrase_timeout(strategy):
+            print("Timeout — returning to idle")
 
     @worker.event_handler("on_pipeline_started")
     async def on_pipeline_started(worker, frame):

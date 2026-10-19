@@ -45,5 +45,10 @@ piper:
   model_name: en_US-amy-medium
   voice_id: amy
 
+wake:
+  enabled: true # Set to false to listen without a wake phrase.
+  phrases: ["hey pixel"]
+  timeout: 5.0
+
 logging:
   level: DEBUG
