@@ -37,6 +37,10 @@ Piper for speech synthesis. No cloud API keys are required.
    CPU/CUDA mode, Ollama model, and audio input device. Keep `.env` for
    optional secrets or environment-specific overrides.
 
+   For a complete fresh-machine setup, including Ubuntu packages, CUDA/cuBLAS/
+   cuDNN installation, model downloads, and verification commands, follow the
+   [root setup guide](../README.md#development-setup).
+
    Install Ollama on the host. On Linux or WSL:
 
    ```bash
@@ -66,8 +70,8 @@ Piper for speech synthesis. No cloud API keys are required.
    ```
 
    The bot listens to the local microphone and logs transcriptions and Ollama
-   responses. Piper is currently disabled in `bot.py`, so enable it before
-   expecting spoken responses through the default audio output device.
+   responses. Kokoro produces spoken responses through the configured local
+   audio output device.
 
    To inspect the audio devices visible to WSL or Linux:
 
