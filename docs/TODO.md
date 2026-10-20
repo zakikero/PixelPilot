@@ -12,12 +12,6 @@
 ## Later
 
 - [ ] Document the WSLg audio prerequisites and recovery steps.
-- [ ] Decide whether Piper or Kokoro should be the supported default TTS service.
-- [ ] Replace hard-coded local development assumptions with environment-specific configuration.
-- [ ] Add language switching to the TTS.
-- [ ] Find a way for the STT to auto-detect languages.
-- [ ] Learn more about context management and personalisation of the bot over time as a feature.
-- [ ] Look for higher-quality alternatives for voices.
 
 ## Completed
 
