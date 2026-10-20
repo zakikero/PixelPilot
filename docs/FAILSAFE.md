@@ -3,8 +3,25 @@
 Reviewed 2026-10-19 against the installed Pipecat **1.12.0**, Python 3.14.4,
 faster-whisper 1.2.1, CTranslate2 4.8.3, and the actual project sources.
 This document records observed failures and proposed reliability changes.
-The recovery policies below are recommendations; they have not been implemented
-as part of this review.
+The recovery policies below are recommendations. A subsequent code cleanup
+corrected Whisper's language setting to YAML `null` and moved Kokoro's speed
+into its settings object. The remaining recovery policies are not implemented.
+
+## Follow-up verification after code cleanup
+
+The saved configuration now selects CPU INT8 with `large-v3-turbo` and
+`llama3.2:3b`. With the reduced dependencies installed, a real WebRTC peer
+connected and received RTVI `bot-ready`. The HTTP server remained available
+after disconnect. All ten automated tests, Ruff, and Pyright passed.
+
+This probe checked model initialization, connection readiness, and disconnect;
+it did not exercise a spoken turn or local microphone/speaker playback.
+Pipecat reported the default Whisper latency estimate, missing video tracks
+for the audio-only connection, and an audio stream ending as the probe closed.
+The single `loky` semaphore warning also remained at process shutdown.
+
+The launch findings below describe the earlier CUDA configuration and are
+retained as the original reliability review.
 
 ## What the single launch established
 
@@ -235,7 +252,7 @@ currently an active, validated TTS fallback. See
 
 ## Smaller code corrections
 
-- Put Kokoro `speed` inside `KokoroTTSService.Settings(...)`; the installed
+- **Completed in the cleanup:** put Kokoro `speed` inside `KokoroTTSService.Settings(...)`; the installed
   service reads speed from settings. Passing it as an unrelated constructor
   keyword does not apply a non-default speech speed.
 - Validate configuration types and log levels at startup, with field-specific

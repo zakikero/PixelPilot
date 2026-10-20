@@ -18,7 +18,7 @@ running. From the repository root:
 cd bot
 uv sync
 cp .env.example .env
-ollama pull llama3.1:8b
+ollama pull llama3.2:3b
 ```
 
 Edit [bot/config.yaml](bot/config.yaml) for your models, Whisper CPU/CUDA mode,
@@ -36,11 +36,15 @@ uv run bot.py -t local    # Host microphone and speakers
 ```
 
 For WebRTC, open **http://localhost:7860/client/**, connect, and allow microphone
-access. Say **"hey pixel"** followed by your question. Use one browser session
-at a time on a laptop.
+access. Use a wake phrase from `bot/config.yaml` followed by your question.
+Use one browser session at a time on a laptop.
 
 For local audio, run `uv run audio_devices.py` and set the matching device
 indexes in `bot/config.yaml`. Stop the bot before switching transports.
+
+[bot/bot.py](bot/bot.py) handles configuration, startup, and the two audio
+transports. [bot/voice_pipeline.py](bot/voice_pipeline.py) builds and runs the
+shared conversation pipeline.
 
 ## Documentation
 

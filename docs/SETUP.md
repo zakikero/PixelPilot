@@ -55,7 +55,7 @@ setup. The `.env` file is reserved for optional environment-specific overrides
 and secrets.
 
 The default environment uses Whisper, Kokoro's `af_heart` voice, and the local
-Ollama `llama3.1:8b` model.
+Ollama `llama3.2:3b` model.
 
 ## Set up Ollama
 
@@ -75,7 +75,7 @@ ollama serve
 In another terminal, download the model configured in `bot/config.yaml`:
 
 ```bash
-ollama pull llama3.1:8b
+ollama pull llama3.2:3b
 ```
 
 Verify that the server is responding and the model is available:
@@ -99,9 +99,9 @@ against the target machine's driver and CUDA requirements.
 
 ### CUDA GPU support
 
-The current `config.yaml` selects CUDA. CUDA on WSL requires an NVIDIA driver
-installed on Windows with WSL support; the driver is not installed by `uv`.
-First check that the GPU is visible inside WSL:
+The current `config.yaml` uses CPU inference with INT8. To switch to CUDA on
+WSL, an NVIDIA driver with WSL support must be installed on Windows; the driver
+is not installed by `uv`. First check that the GPU is visible inside WSL:
 
 ```bash
 nvidia-smi
@@ -189,8 +189,8 @@ uv run audio_devices.py
 Set `audio.input_device_index` and `audio.output_device_index` in
 [config.yaml](../bot/config.yaml) before running `uv run bot.py -t local`.
 
-With the default wake configuration, say **"hey pixel"** followed by your
-question. Set `wake.enabled: false` to converse without the wake phrase.
+Say one of the configured `wake.phrases` followed by your question. Set
+`wake.enabled: false` to converse without the wake phrase.
 
 To change the WebRTC HTTP port:
 
@@ -229,8 +229,8 @@ development runner is not an authenticated public deployment.
 
 1. Start Ollama, then run `uv run bot.py` (WebRTC is the default).
 2. Open `/client/`, connect, and grant microphone access.
-3. Say "hey pixel, introduce yourself". Check the transcript and listen for a
-   Kokoro reply through the browser.
+3. Say a configured wake phrase followed by "introduce yourself". Check the
+   transcript and listen for a Kokoro reply through the browser.
 4. Disconnect. The terminal should report that the conversation is stopping.
 5. Reconnect and ask another question to check that a fresh session works.
 

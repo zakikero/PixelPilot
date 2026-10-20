@@ -11,7 +11,11 @@ been collected, and no runtime behavior was changed for this document.
 
 ## Current setup
 
-The pipeline in [bot.py](../bot/bot.py) is microphone → voice detection → Whisper → user
+The shared pipeline is now in [voice_pipeline.py](../bot/voice_pipeline.py).
+The configuration table below records the original review snapshot; current
+model and device choices are in [config.yaml](../bot/config.yaml).
+
+The pipeline is microphone → voice detection → Whisper → user
 turn aggregation → Ollama → Kokoro → speakers.
 
 | Component | Current configuration | What to investigate |
