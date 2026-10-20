@@ -7,7 +7,7 @@ whisper:
   model: large-v3-turbo
   device: cpu
   compute_type: int8
-  language: None
+  language: en
 
 ollama:
   host: http://localhost:11434/v1
@@ -40,11 +40,6 @@ kokoro:
   voice: af_heart
   language: en-US
   speed: 1.0
-
-
-piper:
-  model_name: en_US-amy-medium
-  voice_id: amy
 
 wake:
   enabled: true # Set to false to listen without a wake phrase.

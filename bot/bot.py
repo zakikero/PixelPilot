@@ -107,7 +107,6 @@ def main() -> None:
 
     from pipecat.runner.run import main as runner_main
 
-    # Pipecat reads sys.argv itself; always restrict its server to WebRTC.
     original_argv = sys.argv
     try:
         sys.argv = [sys.argv[0], "-t", "webrtc", *runner_options]

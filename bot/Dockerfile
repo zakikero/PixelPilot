@@ -16,4 +16,9 @@ RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --locked --no-install-project --no-dev
 
 # Copy the application code
-COPY ./bot.py ./config.yaml ./
+COPY ./bot.py ./voice_pipeline.py ./config.yaml ./
+
+# Run the standalone WebRTC server instead of the base image's cloud launcher.
+EXPOSE 7860
+ENTRYPOINT []
+CMD ["uv", "run", "--no-sync", "bot.py", "--host", "0.0.0.0"]
