@@ -42,9 +42,14 @@ class TransportSelectionTests(unittest.TestCase):
 
     def test_local_uses_shared_pipeline_without_starting_web_server(self):
         transport = object()
+        config = bot.load_config()
         with (
             patch.object(sys, "argv", ["bot.py", "-t", "local"]),
-            patch("pipecat.transports.local.audio.LocalAudioTransport", return_value=transport),
+            patch.object(bot, "load_config", return_value=config),
+            patch.object(bot, "configure_logging"),
+            patch(
+                "pipecat.transports.local.audio.LocalAudioTransport", return_value=transport
+            ) as local_transport,
             patch.object(bot, "run_bot", new_callable=AsyncMock) as run_bot,
             patch("pipecat.runner.run.main") as runner,
         ):
@@ -54,10 +59,15 @@ class TransportSelectionTests(unittest.TestCase):
         run_bot.assert_awaited_once()
         await_args = run_bot.await_args
         assert await_args is not None
-        actual_transport, runner_args = await_args.args
+        actual_transport, runner_args, actual_config = await_args.args
         self.assertIs(actual_transport, transport)
+        self.assertIs(actual_config, config)
         self.assertTrue(runner_args.handle_sigint)
         self.assertTrue(runner_args.handle_sigterm)
+        params = local_transport.call_args.args[0]
+        self.assertEqual(params.input_device_index, config["audio"]["input_device_index"])
+        self.assertEqual(params.output_device_index, config["audio"]["output_device_index"])
+        self.assertIsNotNone(params.audio_in_filter)
 
     def test_local_rejects_server_options(self):
         with (
@@ -83,9 +93,20 @@ class WebRTCLifecycleTests(unittest.IsolatedAsyncioTestCase):
         connection = SimpleNamespace(disconnect=AsyncMock())
         args = SmallWebRTCRunnerArguments(webrtc_connection=connection)
         with (
-            patch.object(bot, "create_transport", new_callable=AsyncMock),
+            patch("pipecat.transports.smallwebrtc.transport.SmallWebRTCTransport"),
+            patch.object(bot, "configure_logging"),
             patch.object(bot, "run_bot", new_callable=AsyncMock, side_effect=RuntimeError("model")),
             self.assertRaisesRegex(RuntimeError, "model"),
+        ):
+            await bot.bot(args)
+        connection.disconnect.assert_awaited_once()
+
+    async def test_configuration_failure_also_closes_the_peer(self):
+        connection = SimpleNamespace(disconnect=AsyncMock())
+        args = SmallWebRTCRunnerArguments(webrtc_connection=connection)
+        with (
+            patch.object(bot, "load_config", side_effect=ValueError("configuration")),
+            self.assertRaisesRegex(ValueError, "configuration"),
         ):
             await bot.bot(args)
         connection.disconnect.assert_awaited_once()
