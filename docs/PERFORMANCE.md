@@ -11,7 +11,11 @@ been collected, and no runtime behavior was changed for this document.
 
 ## Current setup
 
-The pipeline in [bot.py](bot.py) is microphone → voice detection → Whisper → user
+The shared pipeline is now in [voice_pipeline.py](../bot/voice_pipeline.py).
+The configuration table below records the original review snapshot; current
+model and device choices are in [config.yaml](../bot/config.yaml).
+
+The pipeline is microphone → voice detection → Whisper → user
 turn aggregation → Ollama → Kokoro → speakers.
 
 | Component | Current configuration | What to investigate |
@@ -24,8 +28,8 @@ turn aggregation → Ollama → Kokoro → speakers.
 | Wake phrase | Enabled, `hey pixel`, timeout `5.0` seconds | The timeout is an inactivity window, not a five-second delay before each response. |
 | Observability | Transcription and LLM logs; metrics and Whisker commented out | Existing logs do not provide a clear breakdown of response time. |
 
-Configuration is in [config.yaml](config.yaml); dependency versions are in
-[uv.lock](uv.lock).
+Configuration is in [config.yaml](../bot/config.yaml); dependency versions are in
+[uv.lock](../bot/uv.lock).
 
 ## The main metric: time until the bot starts speaking
 

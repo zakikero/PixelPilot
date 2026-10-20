@@ -1,9 +1,10 @@
+# Host device indexes are used only with -t local; WebRTC uses browser devices.
 audio:
   input_device_index: 5
   output_device_index: 3
 
 whisper:
-  model: deepdml/faster-whisper-large-v3-turbo-ct2
+  model: large-v3-turbo
   device: cpu
   compute_type: int8
   language: en
@@ -39,11 +40,6 @@ kokoro:
   voice: af_heart
   language: en-US
   speed: 1.0
-
-
-piper:
-  model_name: en_US-amy-medium
-  voice_id: amy
 
 wake:
   enabled: true # Set to false to listen without a wake phrase.
