@@ -189,6 +189,13 @@ uv run audio_devices.py
 Set `audio.input_device_index` and `audio.output_device_index` in
 [config.yaml](../bot/config.yaml) before running `uv run bot.py -t local`.
 
+On WSLg, successful PortAudio discovery can print ALSA/JACK errors while
+probing unused backends, even when microphone input and replies work. This is
+[known probe noise](https://github.com/PortAudio/portaudio/issues/163).
+Local mode quiets only successful transport construction; initialization
+exceptions replay the captured diagnostics. Stream-opening and runtime errors
+remain visible. The bot uses system PortAudio and the original device indexes.
+
 Say one of the configured `wake.phrases` followed by your question. Set
 `wake.enabled: false` to converse without the wake phrase.
 

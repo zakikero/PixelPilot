@@ -23,6 +23,14 @@ The single `loky` semaphore warning also remained at process shutdown.
 The launch findings below describe the earlier CUDA configuration and are
 retained as the original reliability review.
 
+Local ALSA/JACK discovery messages were reproduced independently of the bot
+on WSLg while the configured devices opened successfully. The user also
+reports working speech I/O on a second WSL machine with the same messages.
+These startup probes are benign when the selected audio devices work. The
+custom native build and transport changes were rolled back; local mode now
+quiets only successful transport initialization and replays diagnostics on
+initialization failure. Stream-opening and runtime errors remain visible.
+
 ## What the single launch established
 
 I launched the saved bot configuration once, using its default WebRTC mode on

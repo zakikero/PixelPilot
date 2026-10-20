@@ -13,7 +13,10 @@ import bot
 
 class ConfigTests(unittest.TestCase):
     def test_whisper_automatic_language_is_none(self):
-        config = bot.load_config()
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "config.yaml"
+            path.write_text("whisper:\n  language: null\n", encoding="utf-8")
+            config = bot.load_config(path)
         self.assertIsNone(config["whisper"]["language"])
 
     def test_invalid_root_is_rejected_with_the_file_path(self):

@@ -10,6 +10,8 @@ import argparse
 import asyncio
 import os
 import sys
+import tempfile
+from contextlib import contextmanager
 from pathlib import Path
 from typing import Any
 
@@ -40,6 +42,27 @@ def configure_logging(config: dict[str, Any]) -> None:
     logger.add(sys.stderr, level=level)
 
 
+@contextmanager
+def _quiet_audio_probe():
+    """Quiet successful Linux device discovery; replay diagnostics on failure."""
+    if sys.platform != "linux":
+        yield
+        return
+    with tempfile.TemporaryFile() as messages:
+        original_stderr = os.dup(2)
+        try:
+            os.dup2(messages.fileno(), 2)
+            yield
+        except BaseException:
+            os.dup2(original_stderr, 2)
+            messages.seek(0)
+            sys.stderr.write(messages.read().decode(errors="replace"))
+            raise
+        finally:
+            os.dup2(original_stderr, 2)
+            os.close(original_stderr)
+
+
 async def bot(runner_args: RunnerArguments) -> None:
     """Handle one WebRTC session started by Pipecat's development runner."""
     from pipecat.transports.base_transport import TransportParams
@@ -68,15 +91,16 @@ async def run_local_bot() -> None:
 
     config = load_config()
     configure_logging(config)
-    transport = LocalAudioTransport(
-        LocalAudioTransportParams(
-            audio_in_enabled=True,
-            audio_in_filter=RNNoiseFilter(),
-            audio_out_enabled=True,
-            input_device_index=config["audio"]["input_device_index"],
-            output_device_index=config["audio"]["output_device_index"],
+    with _quiet_audio_probe():
+        transport = LocalAudioTransport(
+            LocalAudioTransportParams(
+                audio_in_enabled=True,
+                audio_in_filter=RNNoiseFilter(),
+                audio_out_enabled=True,
+                input_device_index=config["audio"]["input_device_index"],
+                output_device_index=config["audio"]["output_device_index"],
+            )
         )
-    )
     runner_args = RunnerArguments()
     runner_args.handle_sigint = True
     runner_args.handle_sigterm = True

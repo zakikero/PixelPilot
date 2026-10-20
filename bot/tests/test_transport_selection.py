@@ -2,6 +2,7 @@
 
 import contextlib
 import io
+import subprocess
 import sys
 import unittest
 from types import SimpleNamespace
@@ -110,6 +111,45 @@ class WebRTCLifecycleTests(unittest.IsolatedAsyncioTestCase):
         ):
             await bot.bot(args)
         connection.disconnect.assert_awaited_once()
+
+
+@unittest.skipUnless(sys.platform == "linux", "Native probe suppression is Linux-only")
+class AudioProbeLoggingTests(unittest.TestCase):
+    def test_successful_probe_is_quiet_and_runtime_errors_remain_visible(self):
+        result = subprocess.run(
+            [
+                sys.executable,
+                "-c",
+                "import bot, os\n"
+                "with bot._quiet_audio_probe():\n"
+                "    os.write(2, b'probe noise\\n')\n"
+                "os.write(2, b'runtime error\\n')",
+            ],
+            capture_output=True,
+            text=True,
+            timeout=15,
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertNotIn("probe noise", result.stderr)
+        self.assertIn("runtime error", result.stderr)
+
+    def test_initialization_failure_replays_diagnostics_and_exception(self):
+        result = subprocess.run(
+            [
+                sys.executable,
+                "-c",
+                "import bot, os\n"
+                "with bot._quiet_audio_probe():\n"
+                "    os.write(2, b'initialization detail\\n')\n"
+                "    raise RuntimeError('audio initialization failed')",
+            ],
+            capture_output=True,
+            text=True,
+            timeout=15,
+        )
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("initialization detail", result.stderr)
+        self.assertIn("RuntimeError: audio initialization failed", result.stderr)
 
 
 if __name__ == "__main__":
