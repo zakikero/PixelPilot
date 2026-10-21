@@ -7,7 +7,7 @@ whisper:
   model: large-v3-turbo
   device: cpu
   compute_type: int8
-  language: en
+  language: null
 
 ollama:
   host: http://localhost:11434/v1
@@ -31,9 +31,6 @@ ollama:
     GAME CATALOG:
     Game information will be added here later. If the user asks to play or learn about a game right now, cheerfully let them know you are getting the game library ready and offer to tell them the time or chat instead.
 
-    TOOL HANDLING:
-    - If the user asks to launch a game, respond with excitement and end your turn by explicitly outputting: LAUNCH_GAME: [game name].
-    - If the user asks for the current time, respond naturally and include the keyword GET_TIME in your response.
   temperature: 0.7
 
 kokoro:
