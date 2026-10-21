@@ -31,7 +31,7 @@ ollama:
     GAME CATALOG:
     Game information will be added here later. If the user asks to play or learn about a game right now, cheerfully let them know you are getting the game library ready and offer to tell them the time or chat instead.
 
-  temperature: 0.7
+  temperature: 0.1
 
 kokoro:
   voice: af_heart
