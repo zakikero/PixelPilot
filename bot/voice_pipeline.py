@@ -112,7 +112,7 @@ async def run_bot(
         create_pipeline(transport, config),
         params=PipelineParams(),
         observers=[TranscriptionLogObserver(), LLMLogObserver()],
-        idle_timeout_secs=runner_args.pipeline_idle_timeout_secs,
+        idle_timeout_secs=None,
         processor_unusable_policy=ProcessorUnusablePolicy.END,
     )
     runner = WorkerRunner(
